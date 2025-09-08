@@ -27,8 +27,22 @@ public class HomeServlet extends HttpServlet {
     
     protected void writeResponse(HttpServletResponse response, String name) throws IOException {
         PrintWriter out = response.getWriter();
-        out.print("<h2>Hello "+name+ "</h2>");
+        // SECURITY FIX: Prevent XSS by HTML encoding user input
+        String sanitizedName = htmlEncode(name);
+        out.print("<h2>Hello " + sanitizedName + "</h2>");
         out.close();
+    }
+    
+    private String htmlEncode(String input) {
+        if (input == null) {
+            return "";
+        }
+        return input.replace("&", "&amp;")
+                   .replace("<", "&lt;")
+                   .replace(">", "&gt;")
+                   .replace("\"", "&quot;")
+                   .replace("'", "&#x27;")
+                   .replace("/", "&#x2F;");
     }
 
     protected void doPost(HttpServletRequest request,
